@@ -84,10 +84,12 @@ download_urlにGETリクエスト送った後レスポンプのJSONデータか�
 やってみる
 > ('https://pbs.twimg.com/tweet_video_thumb/XXXXXX.jpg')のXXXXXXの部分をコピーしてhttps://video.twimg.com/tweet_video/XXXXXX.mp4に  
 
-(https://pbs.twimg.com/ext_tw_video_thumb/1702230797372317696/pu/img/EmV_yT3U_wAVaOvm.jpg)の`1702230797372317696`の部分をコピーして
-(https://video.twimg.com/tweet_video/1702230797372317696.mp4)に  
+(https://pbs.twimg.com/ext_tw_video_thumb/1702230797372317696/pu/img/EmV_yT3U_wAVaOvm.jpg)
+の`1702230797372317696`の部分をコピーして
+(https://video.twimg.com/tweet_video/1702230797372317696.mp4)
+に  
 →このサイトにアクセスできません
 
 >またはTwitterのAPIからjsonを得ることができます。
 
-→TwitterのAPIは停止中
+→TwitterのAPI...

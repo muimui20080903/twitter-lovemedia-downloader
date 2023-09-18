@@ -3,63 +3,103 @@
 
 import { writeFile, readFile } from "fs/promises"
 const config = JSON.parse(await readFile("./config.json"))
-console.log(config)
 import { TwitterOpenApi } from "twitter-openapi-typescript"
 import fetch from "node-fetch"
 const api = new TwitterOpenApi({ fetchApi: fetch })
-const client = await api.getClientFromCookies(config.ct0, config.authToken)
 import sqlite3 from "sqlite3"
 const db = new sqlite3.Database(config.dbdir)
-let sql
 
-const getLikes = (async (userId) => {
+const getMediaInfo = async (data) => {
+  const tweet = data.tweet.legacy
+  // メディア情報の初期化
+  const mediaInfo = []
+  const hasVideo = tweet.extendedEntities && tweet.extendedEntities.media && tweet.extendedEntities.media.length > 0;
+  const hasPhoto = tweet.entities && tweet.entities.media && tweet.entities.media.length > 0;
+
+  // 画像情報を取得
+  if (hasPhoto) {
+    tweet.entities.media.forEach((media, index) => {
+      if (media.type === 'photo') {
+        mediaInfo.push({
+          media_type: media.type, // 'photo'
+          file_name: `${data.user.legacy.screenName}-${data.tweet.restId}-${index}.jpg`,
+          url: media.mediaUrlHttps
+        })
+      }
+    })
+  }
+
+  // 動画情報を取得
+  if (hasVideo) {
+    tweet.extendedEntities.media.forEach((media, index) => {
+      if (media.type === 'video') {
+        // 動画の場合、各バリアントのなかから一番ビットレートの高いURLを取得
+        let maxBitrate = 0
+        let maxBitrateUrl
+        media.videoInfo.variants.forEach((variant) => {
+          if (variant.bitrate > maxBitrate) {
+            maxBitrate = variant.bitrate
+            maxBitrateUrl = variant.url
+          }
+        })
+        mediaInfo.push({
+          media_type: media.type, // 'video'
+          file_name: `${data.user.legacy.screenName}-${data.tweet.restId}-${index}.mp4`,
+          url: maxBitrateUrl
+        })
+      }
+    })
+  }
+  return mediaInfo;
+}
+
+const getLikes = async (userId) => {
+  const client = await api.getClientFromCookies(config.ct0, config.authToken)
   const results = []
   const response = await client.getTweetApi().getLikes({ userId: userId }) // userIDからいいね欄を取得
   // console.log(response.data.data.length)
-  response.data.data.filter((e) => !e.promotedMetadata && !!e.tweet.legacy.entities.media) // プロモーションツイートと画像のないツイートを除外
+  response.data.data.filter((e) => !e.promotedMetadata && (!!e.tweet.legacy.entities.media || !!e.tweet.legacy.extendedEntities)) // プロモーションツイートと画像のないツイートを除外
     .forEach((data) => {
-      // 複数枚画像のあるツイートについて、一枚ずつ処理
-      data.tweet.legacy.entities.media.forEach((media, index) => {
-        const file_name = `${data.user.legacy["screenName"]}-${data.tweet.restId}-${index}`
-        // sqlの中のデータと照合して、存在しなかったら保存する
-        checkSQL(data, media, file_name)
-          .then((existInSQL) => {
-            if (existInSQL) {
-              const result = {
-                media_type: media.type,
-                file_name,
-                url: media.mediaUrlHttps
+      getMediaInfo(data)
+        .then((e) => e.forEach((mediaInfo) => {
+          // sqlの中のデータと照合して、存在しなかったら保存する
+          checkSQL(data, mediaInfo)
+            .then((existInSQL) => {
+              if (existInSQL) {
+                results.push(mediaInfo)
               }
-              results.push(result)
-            }
-          })
-      })
+            })
+        }))
+      // 複数枚画像のあるツイートについて、一枚ずつ処理
     })
-  return results;
-})
 
-const checkSQL = (async (data, media, file_name) => {
+  return results;
+}
+
+const checkSQL = async (data, mediaInfo) => {
   //resultがすでにSQliteに載ってるかを確認
+  let sql
   sql = "SELECT COUNT(*) FROM tweet WHERE tweet_id = ? LIMIT 1;"
-  db.get(sql, [media.idStr], (err, row) => {
+  db.get(sql, [data.tweet.restId], (err, row) => { // ツイートIDで検索
     if (err) return console.log("sql error\n" + err.message);
     if (row['COUNT(*)'] !== 0) return;//console.log("すでにSQliteにあるデータです");
     //新規のデータであった場合resultをSQliteに格納
     sql = "INSERT INTO tweet (author_screenname,author_name, author_id, tweet_id, media_url, file_name) VALUES(?,?,?,?,?,?);"
-    const a = [
+    const param = [
       data.user.legacy.name, // ユーザーの表示名
       `@${data.user.legacy.screenName}`, //ユーザー名(@hogehoge)
       data.user.restId, // ユーザーid
-      media.idStr, // ツイートID
-      media.mediaUrlHttps, // 画像のurl
-      file_name, // ファイル名
+      data.tweet.restId, // ツイートID
+      mediaInfo.url, // 画像のurl
+      mediaInfo.file_name, // ファイル名
     ]
-    db.run(sql, a, (err) => {
+    console.log(param)
+    db.run(sql, param, (err) => {
       if (err) return console.log("sql error\n" + err.message);
       return true;
     })
   })
-})
+}
 
 const downloadPic = async (pic) => {
   try {
@@ -67,8 +107,8 @@ const downloadPic = async (pic) => {
     if (!response.ok) {
       throw new Error(`Failed to download ${pic.url}, status: ${response.status}`)
     }
-    // todo 動画の保存
-    const outputPath = pic.media_type === "photo" ? `${savepath}/${pic.file_name}.jpg` : `${savepath}/${pic.file_name}.mp4`
+    // const outputPath = pic.media_type === "photo" ? `${savepath}/${pic.file_name}.jpg` : `${savepath}/${pic.file_name}.mp4`
+    const outputPath = `${config.savepath}/${pic.file_name}`
     const imageBuffer = Buffer.from(await response.arrayBuffer())
     await writeFile(outputPath, imageBuffer)
   } catch (error) {
@@ -86,10 +126,12 @@ const main = async () => {
     console.log(`${user.username}の画像を取得しました\n${userPictures.length}枚取得`)
   }
   db.close()
+  // console.log(allPictures) // デバック用
   // すべての画像をダウンロードする Download all the pictures
   for await (const pic of allPictures) {
     await downloadPic(pic)
   }
+  console.log(allPictures)
   console.log("おわり")
 }
 
