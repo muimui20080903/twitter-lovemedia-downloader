@@ -1,0 +1,19 @@
+{
+    "cookie情報の取り方": "https://belltree.life/tweet-camouflage-by-cookie/",
+    "authToken": "",
+    "ct0": "",
+    "UserList": [
+        {
+            "username": "@elonmusk",
+            "userId": "44196397",
+            "memo": "User情報はuserIDさえあれば動く"
+        },
+        {
+            "username": "@",
+            "userId": "",
+            "memo": ""
+        }
+    ],
+    "dbdir": "./twitterpic.db",
+    "savepath": "./pic"
+}
