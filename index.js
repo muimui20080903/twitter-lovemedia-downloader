@@ -2,6 +2,7 @@
 
 import { writeFile, readFile } from "fs/promises"
 const config = JSON.parse(await readFile("./config.json"))
+import path from "path"
 import { TwitterOpenApi } from "twitter-openapi-typescript"
 import fetch from "node-fetch"
 const api = new TwitterOpenApi({ fetchApi: fetch })
@@ -20,9 +21,10 @@ const getMediaInfo = async (data) => {
   if (hasPhoto) {
     tweet.entities.media.forEach((media, index) => {
       if (media.type === 'photo') {
+        const extname = path.extname(media.mediaUrlHttps)
         mediaInfo.push({
           media_type: media.type, // 'photo'
-          file_name: `${data.user.legacy.screenName}-${data.tweet.restId}-${index}.jpg`,
+          file_name: `${data.user.legacy.screenName}-${data.tweet.restId}-${index}${extname}`,
           url: media.mediaUrlHttps
         })
       }
@@ -109,7 +111,6 @@ const downloadPic = async (pic) => {
   }
 }
 
-
 const getAllMedia = async () => {
   const allPictures = []
   // ユーザごとに処理を実行し、画像を取得する Process the users and get their pictures
@@ -118,7 +119,9 @@ const getAllMedia = async () => {
     const tweets = await getLikesMedia(user.userId); // メディアツイート情報取得
     for await (const tweet of tweets) { // ツイート個々に対して処理
       // ツイートのデータから保存するのに必要なurlとファイル名を抜き出し
-      const mediaInfoArray = await getMediaInfo(tweet)
+      const mediaInfoArray = []
+      const mediaInfo =  await getMediaInfo(tweet)
+      mediaInfoArray.push(...mediaInfo)
       // ツイートひとつひとつに対して、メディアの情報を抜き出し
       for await (const mediaInfo of mediaInfoArray) {
         // sqlの中のデータと照合して、存在しなかったらallPicturesに保存する
