@@ -1,5 +1,4 @@
-//  todo :動画の保存
-//       :一回の読み込みで20ツイートまでしか取得できない、50～100くらい欲しい
+//  todo :一回の読み込みで20ツイートまでしか取得できない、50～100くらい欲しい
 
 import { writeFile, readFile } from "fs/promises"
 const config = JSON.parse(await readFile("./config.json"))
@@ -65,25 +64,33 @@ const getLikesMedia = async (userId) => {
 const checkSQL = async (data, mediaInfo) => {
   // https://qiita.com/zaburo/items/a155cbc02832b501a8dd
   // node.jsでsqlite3を利用する
+  // https://moewe-net.com/nodejs/sqlite3
+  // Node.jsでSQLiteを使う
   // resultがすでにSQliteに載ってるかを確認
-  let sql
-  sql = "SELECT COUNT(*) FROM tweet WHERE file_name = ? LIMIT 1;"
-  db.get(sql, [mediaInfo.file_name], (err, row) => { // ツイートIDで検索
-    if (err) return console.log("sql error\n" + err.message);
-    if (row['COUNT(*)'] !== 0) return;
-    //新規のデータであった場合resultをSQliteに格納
-    sql = "INSERT INTO tweet (author_screenname,author_name, author_id, tweet_id, media_url, file_name) VALUES(?,?,?,?,?,?);"
-    const param = [
-      data.user.legacy.name, // ユーザーの表示名
-      `@${data.user.legacy.screenName}`, //ユーザー名(@hogehoge)
-      data.user.restId, // ユーザーid
-      data.tweet.restId, // ツイートID
-      mediaInfo.url, // 画像のurl
-      mediaInfo.file_name, // ファイル名
-    ]
-    db.run(sql, param, (err) => {
-      if (err) return console.log("sql error\n" + err.message);
-      return true;
+  let sql = "SELECT COUNT(*) FROM tweet WHERE file_name = ? LIMIT 1;"
+  return new Promise((resolve, reject) => {
+    db.get(sql, [mediaInfo.file_name], (err, row) => { // ツイートIDとインデックスで検索
+      if (err) {
+        reject("sql error\n" + err.message);
+        return;
+      }
+      const IsNewData = row['COUNT(*)'] === 0
+      if (IsNewData) {
+        //新規のデータであった場合resultをSQliteに格納
+        sql = "INSERT INTO tweet (author_screenname,author_name, author_id, tweet_id, media_url, file_name) VALUES(?,?,?,?,?,?);"
+        const param = [
+          data.user.legacy.name, // ユーザーの表示名
+          `@${data.user.legacy.screenName}`, //ユーザー名(@hogehoge)
+          data.user.restId, // ユーザーid
+          data.tweet.restId, // ツイートID
+          mediaInfo.url, // 画像のurl
+          mediaInfo.file_name, // ファイル名
+        ]
+        db.run(sql, param, (err) => {
+          if (err) return console.log("sql error\n" + err.message);
+        })
+      }
+      resolve(IsNewData);
     })
   })
 }
@@ -107,21 +114,22 @@ const getAllMedia = async () => {
   const allPictures = []
   // ユーザごとに処理を実行し、画像を取得する Process the users and get their pictures
   for await (const user of config["UserList"]) {
+    const userPictures = []
     const tweets = await getLikesMedia(user.userId); // メディアツイート情報取得
     for await (const tweet of tweets) { // ツイート個々に対して処理
-      // 保存するのに必要なurlとファイル名を抜き出し
-      const mediaInfoArray = await getMediaInfo(tweet);
-      // sqlの中のデータと照合して、存在しなかったら保存する
+      // ツイートのデータから保存するのに必要なurlとファイル名を抜き出し
+      const mediaInfoArray = await getMediaInfo(tweet)
+      // ツイートひとつひとつに対して、メディアの情報を抜き出し
       for await (const mediaInfo of mediaInfoArray) {
-        const existInSQL = await checkSQL(tweet, mediaInfo)
-        console.log("existInSQL:", existInSQL) // ->`existInSQL: undefined`になってしまう
-        console.log(mediaInfo)
-        if (existInSQL) {
-          allPictures.push(mediaInfo)
+        // sqlの中のデータと照合して、存在しなかったらallPicturesに保存する
+        const IsNewData = await checkSQL(tweet, mediaInfo)
+        if (IsNewData) {
+          userPictures.push(mediaInfo)
         }
       }
     }
-    console.log(`${user.username}の画像を取得しました\n${allPictures.length}枚取得`)
+    allPictures.push(...userPictures)
+    console.log(`${user.username}の画像を取得しました\n${userPictures.length}枚取得`)
   }
   db.close()
   return allPictures;
