@@ -4,3 +4,4 @@ config.json
 twitterpic.db
 data.yml
 sample.js
+*.sh

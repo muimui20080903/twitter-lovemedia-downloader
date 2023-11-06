@@ -93,3 +93,44 @@ download_urlにGETリクエスト送った後レスポンプのJSONデータか�
 >またはTwitterのAPIからjsonを得ることができます。
 
 →TwitterのAPI...
+## 2023/9/19
+1. 動画データを取得したいがどこにあるのかわからない  
+
+[Twitter に投稿された画像・動画をダウンロードする CLI ツール「twsv」を作った](https://neos21.net/blog/2019/10/04-01.html)
+>ツイートオブジェクトの中は愚直に見ていった。画像も動画も、ツイートオブジェクトの .extended_entries.media という配列プロパティの中に入っている。画像の場合は、配列の中の各要素の .media_url が目的の URL。  
+>動画の場合は .video_info.variants プロパティが配列になっていて、ビットレートごとに目的の URL が入っている。そこで、ビットレートを比較して、ビットレートが一番大きい動画の URL を拾うことにした。
+
+動画はextended_entries.mediaに入っている  
+動画の場所がわかり、データが取り出せるようになった  
+画像の保存と同じ方法でDLできる
+
+2. sqlite3の処理順がわからない
+
+checkSQL()は同期処理させて返り値を出したい  
+node-sqlite3の仕様がわからない
+## 2023/9/20
+1. sqlite3の処理順がわからない
+
+* [node.jsでsqlite3を利用する](https://qiita.com/zaburo/items/a155cbc02832b501a8dd)  
+一行だけ結果を返したいときはdb.get()
+* [Node.jsでSQLiteを使う](https://moewe-net.com/nodejs/sqlite3)  
+これみてPromiseで書いたら同期処理できた
+
+動画のとき同じオブジェクトに動画データも画像データも入っちゃって、  
+一回目は動画、二回目は画像が保存されるようになっていた  
+一旦配列作り、それに代入することで解決
+```
+- const mediaInfoArray = await getMediaInfo(tweet)
+
++ const mediaInfoArray = []
++       const mediaInfo =  await getMediaInfo(tweet)
++       mediaInfoArray.push(...mediaInfo)
+```
+もっときれいに書けるような気もする  
+ひとまず動きは満足  
+処理順とか並列処理とかもっと考えられる気がするけど、  
+そこまで求めてないから今回はやらない
+
+一回の読み込みで20ツイートまでしか読めないから、  
+そこをなんとかしたい  
+いっぺんに30ツイートくらいいいねしたら保存できない
