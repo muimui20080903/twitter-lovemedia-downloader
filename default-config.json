@@ -6,11 +6,18 @@
         {
             "username": "@elonmusk",
             "userId": "44196397",
+            "name":"",
+            "dirname":"",
+            "erroIgnore":false,
             "memo": "User情報はuserIDさえあれば動く"
+
         },
         {
             "username": "@",
             "userId": "",
+            "name":"",
+            "dirname":"",
+            "erroIgnore":false,
             "memo": ""
         }
     ],

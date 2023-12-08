@@ -11,8 +11,12 @@ cookieでログインしているから鍵垢の画像も見られる
 
 # 実行
 ```
-$ npm install
-$ npm start
+$ deno task start
+```
+
+```
+$ curl -O https://github.com/denodrivers/sqlite3/releases/download/v0.5.3/libsqlite3.so
+$ DENO_SQLITE_PATH=libsqlite3.so deno run --unstable --allow-env --allow-ffi deno-sqlite3-gen.ts
 ```
 ___
 
@@ -134,3 +138,30 @@ node-sqlite3の仕様がわからない
 一回の読み込みで20ツイートまでしか読めないから、  
 そこをなんとかしたい  
 いっぺんに30ツイートくらいいいねしたら保存できない
+
+## 2023/11/14(火)
+### Denoを導入  
+TSで書き直す  
+### ユーザーのメディア欄からもデータ取得できるようにコードを全体的に書き換える
+
+- Bookmark  
+- Media  
+- Likes  
+
+main()  
+- ツイートデータの取得
+  - Bookmark  
+  - Media  
+  - Likes  
+
+- ツイートデータから新規データのみDL
+  - media付きツイートのみ抽出
+  - 必要なデータを揃える
+  - データベースと照合
+  - ダウンロード
+
+
+  https://zenn.dev/tkithrta/articles/21c681fd14228f#deno-sqlite3
+  https://zenn.dev/akkie1030/articles/9f2304544245b2#%E9%85%8D%E5%88%97-object-%E5%9E%8B%E5%AE%9A%E7%BE%A9
+  https://zenn.dev/pale_delphinium/scraps/1affab2560f0f7
+  

@@ -1,7 +1,18 @@
+# ディレクトリ
 node_modules
 pic
+.vscode
+
+# ファイル
 config.json
 twitterpic.db
+libsqlite3.so
+
+# 一時的なファイル
+index.js
 data.yml
-sample.js
+sample.*
 *.sh
+tweetData.json
+error.log
+response.json
