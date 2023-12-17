@@ -1,6 +1,6 @@
 const config = JSON.parse(await Deno.readTextFile("./config.json"))
 import path from "node:path"
-import { TwitterOpenApi } from "npm:twitter-openapi-typescript"
+import { TwitterOpenApi } from "npm:twitter-openapi-typescript@0.0.25"
 const api = new TwitterOpenApi()
 const client = await api.getClientFromCookies({
   ct0: config.ct0,
@@ -26,8 +26,7 @@ const main = async () => {
       downloadMediaByResponce("likes", Likes, user.dirname, `${user.name}(${user.username})`) // メディアツイート情報取得
     } catch (e) {
       if(user.erroIgnore === true) continue;
-      console.log(user.username + "さんのいいね欄から画像を取得できませんでした")
-      Deno.writeTextFile("./error.log", `${user.username}さんのメディア欄から画像を取得中にエラーが発生しました\n${e}\n`, { append: true })
+      console.log(`${e}\n${user.username}さんのメディア欄から画像を取得中にエラーが発生しました\n`)
     }
   }
   // メディア
@@ -40,8 +39,7 @@ const main = async () => {
       downloadMediaByResponce("media",Media, user.dirname,`${user.name}(${user.username})`)
     } catch (e) {
       if (user.erroIgnore === true) continue;
-      console.log(user.username + "さんのメディア欄から画像を取得中にエラーが発生しました")
-      Deno.writeTextFile("./error.log", `${user.username}さんのメディア欄から画像を取得中にエラーが発生しました\n${e}\n`, { append: true })
+      console.log(`${e}\n${user.username}さんのメディア欄から画像を取得中にエラーが発生しました\n`)
     }
   }
   db.close()

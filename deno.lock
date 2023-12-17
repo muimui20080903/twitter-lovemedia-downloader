@@ -10,6 +10,8 @@
       "npm:sqlite3@5.1.6": "npm:sqlite3@5.1.6",
       "npm:sqlite3@^5.1.6": "npm:sqlite3@5.1.6",
       "npm:twitter-openapi-typescript": "npm:twitter-openapi-typescript@0.0.24",
+      "npm:twitter-openapi-typescript@0.0.1": "npm:twitter-openapi-typescript@0.0.1",
+      "npm:twitter-openapi-typescript@0.0.25": "npm:twitter-openapi-typescript@0.0.25",
       "npm:twitter-openapi-typescript@^0.0.24": "npm:twitter-openapi-typescript@0.0.24"
     },
     "npm": {
@@ -530,14 +532,34 @@
           "safe-buffer": "safe-buffer@5.2.1"
         }
       },
+      "twitter-openapi-typescript-generated@0.0.1": {
+        "integrity": "sha512-gIdfjWiV9td3xUV+8fqAL0lo9d97g7fpXpOM1vRF+2K8PigWWLcwldSqfjCPtpPipA2vkWDkT1sEqsrd0Ro0eQ==",
+        "dependencies": {}
+      },
       "twitter-openapi-typescript-generated@0.0.15": {
         "integrity": "sha512-JQahkctl4j6mrS+ehKPlVW9lF7tGYKnwxzXkHI6juUpkL7v7wdMnbo+HuUAlyOnYcXXqKPCNnNWeETddCG+2LQ==",
         "dependencies": {}
+      },
+      "twitter-openapi-typescript-generated@0.0.16": {
+        "integrity": "sha512-c6lBszxisZ4MJno44EqD5tpdbmEbEzBoePh5MUnsiuBMTcB78Q4oMqbBMaAhcN9zTVZr+5B/FusxdQBh0BIgJw==",
+        "dependencies": {}
+      },
+      "twitter-openapi-typescript@0.0.1": {
+        "integrity": "sha512-eJdEdCA3AobFfk3Dp2Mwqk/nPmI5hHCsy/MS9MSVjA+CQEHwgzB7KOnpi+oqQ9A5N/cGdv7N8sD1eXTypoYrOQ==",
+        "dependencies": {
+          "twitter-openapi-typescript-generated": "twitter-openapi-typescript-generated@0.0.1"
+        }
       },
       "twitter-openapi-typescript@0.0.24": {
         "integrity": "sha512-N9fSbJQeXdSUMLXLxboxkrAxH2Ul2/RdxuJqf8syb8WB/YMunKvkeTLfZpmQ3kRWy5Uw6+pfMJWOKOX6hxJzFw==",
         "dependencies": {
           "twitter-openapi-typescript-generated": "twitter-openapi-typescript-generated@0.0.15"
+        }
+      },
+      "twitter-openapi-typescript@0.0.25": {
+        "integrity": "sha512-4EkdoRAeyFVvDAh+UqnLOGyaPvW6ezrTWlOyo3+O3ra9Cqg/BlPgWJ5EY88CI3GQ7VkeWT4PY+CXkOPc2QfLjQ==",
+        "dependencies": {
+          "twitter-openapi-typescript-generated": "twitter-openapi-typescript-generated@0.0.16"
         }
       },
       "undici-types@5.26.5": {
