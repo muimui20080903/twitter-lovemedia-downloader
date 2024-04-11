@@ -1,9 +1,9 @@
 // 引数で指定したscreenNameからuserIDを取得する
 // 例: deno run --allow-net getUserIDByUserScreenName.ts elonmusk
 const args = Deno.args;
-const screenName = args[0] ?? "elonmusk";
+const screenName = args[0].replace("@","") ?? "elonmusk";
 
-import { TwitterOpenApi } from "npm:twitter-openapi-typescript";
+import { TwitterOpenApi } from "npm:twitter-openapi-typescript@0.0.32";
 const api = new TwitterOpenApi();
 const client = await api.getGuestClient();
 const response = await client.getUserApi().getUserByScreenName({ screenName: screenName });

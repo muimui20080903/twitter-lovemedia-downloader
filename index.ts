@@ -1,6 +1,6 @@
 const config = JSON.parse(await Deno.readTextFile("./config.json"))
 import path from "node:path"
-import { TwitterOpenApi } from "npm:twitter-openapi-typescript@0.0.25"
+import { TwitterOpenApi} from "npm:twitter-openapi-typescript@0.0.32" //うまい感じに型を読み込んで定義したい
 const api = new TwitterOpenApi()
 const client = await api.getClientFromCookies({
   ct0: config.ct0,
@@ -26,7 +26,7 @@ const main = async () => {
       downloadMediaByResponce("likes", Likes, user.dirname, `${user.name}(${user.username})`) // メディアツイート情報取得
     } catch (e) {
       if(user.erroIgnore === true) continue;
-      console.log(`${e}\n${user.username}さんのメディア欄から画像を取得中にエラーが発生しました\n`)
+      console.log(`${e}\n${user.username}さんのいいね欄から画像を取得中にエラーが発生しました\n`)
     }
   }
   // メディア

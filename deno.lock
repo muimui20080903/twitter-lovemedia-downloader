@@ -12,6 +12,8 @@
       "npm:twitter-openapi-typescript": "npm:twitter-openapi-typescript@0.0.24",
       "npm:twitter-openapi-typescript@0.0.1": "npm:twitter-openapi-typescript@0.0.1",
       "npm:twitter-openapi-typescript@0.0.25": "npm:twitter-openapi-typescript@0.0.25",
+      "npm:twitter-openapi-typescript@0.0.28": "npm:twitter-openapi-typescript@0.0.28",
+      "npm:twitter-openapi-typescript@0.0.32": "npm:twitter-openapi-typescript@0.0.32",
       "npm:twitter-openapi-typescript@^0.0.24": "npm:twitter-openapi-typescript@0.0.24"
     },
     "npm": {
@@ -544,6 +546,14 @@
         "integrity": "sha512-c6lBszxisZ4MJno44EqD5tpdbmEbEzBoePh5MUnsiuBMTcB78Q4oMqbBMaAhcN9zTVZr+5B/FusxdQBh0BIgJw==",
         "dependencies": {}
       },
+      "twitter-openapi-typescript-generated@0.0.17": {
+        "integrity": "sha512-GMnFJeWZ9DbsldBUYXgV6RnK7+p5OD6DGmVgF6isnTgfqBo7QeqaoF0uDAonEox4FK42yywzzuErqGXY3GG6dw==",
+        "dependencies": {}
+      },
+      "twitter-openapi-typescript-generated@0.0.20": {
+        "integrity": "sha512-pDiYV4DNSFzRxhha06t/KWn7iGAzdHxdlfdkdi+Fb5QVubXF5IHAGeXVXrFdd1ie7CY8nihNJDQjxXYoBEnb6Q==",
+        "dependencies": {}
+      },
       "twitter-openapi-typescript@0.0.1": {
         "integrity": "sha512-eJdEdCA3AobFfk3Dp2Mwqk/nPmI5hHCsy/MS9MSVjA+CQEHwgzB7KOnpi+oqQ9A5N/cGdv7N8sD1eXTypoYrOQ==",
         "dependencies": {
@@ -560,6 +570,18 @@
         "integrity": "sha512-4EkdoRAeyFVvDAh+UqnLOGyaPvW6ezrTWlOyo3+O3ra9Cqg/BlPgWJ5EY88CI3GQ7VkeWT4PY+CXkOPc2QfLjQ==",
         "dependencies": {
           "twitter-openapi-typescript-generated": "twitter-openapi-typescript-generated@0.0.16"
+        }
+      },
+      "twitter-openapi-typescript@0.0.28": {
+        "integrity": "sha512-q18JBVt67JsE+DvJSr21fVXy9jdk7UxCQGqLmzviKgt/RiGkbpn+Xd/4tyXItHbXlNcv/mOeTvkarxTlkx63kw==",
+        "dependencies": {
+          "twitter-openapi-typescript-generated": "twitter-openapi-typescript-generated@0.0.17"
+        }
+      },
+      "twitter-openapi-typescript@0.0.32": {
+        "integrity": "sha512-cbXH7YocoAmX54yxSAUnBYWh5iOHH1h76i57ZOfifU7YxTlmBozKGaKOx/P4ff340WP+7ImYYkxpuGWFfe8ndA==",
+        "dependencies": {
+          "twitter-openapi-typescript-generated": "twitter-openapi-typescript-generated@0.0.20"
         }
       },
       "undici-types@5.26.5": {

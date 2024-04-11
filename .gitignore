@@ -16,3 +16,6 @@ sample.*
 tweetData.json
 error.log
 response.json
+
+getUserMediaAll.ts
+getUserMedia.ts
