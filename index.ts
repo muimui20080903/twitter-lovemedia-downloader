@@ -1,6 +1,6 @@
 const config = JSON.parse(await Deno.readTextFile("./config.json"))
 import path from "node:path"
-import { TwitterOpenApi} from "npm:twitter-openapi-typescript@0.0.32" //うまい感じに型を読み込んで定義したい
+import { TwitterOpenApi } from "npm:twitter-openapi-typescript@0.0.32" //うまい感じに型を読み込んで定義したい
 const api = new TwitterOpenApi()
 const client = await api.getClientFromCookies({
   ct0: config.ct0,
@@ -25,7 +25,7 @@ const main = async () => {
       const Likes = await client.getTweetApi().getLikes({ userId: user.userId })
       downloadMediaByResponce("likes", Likes, user.dirname, `${user.name}(${user.username})`) // メディアツイート情報取得
     } catch (e) {
-      if(user.erroIgnore === true) continue;
+      if (user.erroIgnore === true) continue;
       console.log(`${e}\n${user.username}さんのいいね欄から画像を取得中にエラーが発生しました\n`)
     }
   }
@@ -36,7 +36,7 @@ const main = async () => {
       // 一秒間のタイムアウト
       setTimeout(() => { }, 1000)
       const Media = await client.getTweetApi().getUserMedia({ userId: user.userId })
-      downloadMediaByResponce("media",Media, user.dirname,`${user.name}(${user.username})`)
+      downloadMediaByResponce("media", Media, user.dirname, `${user.name}(${user.username})`)
     } catch (e) {
       if (user.erroIgnore === true) continue;
       console.log(`${e}\n${user.username}さんのメディア欄から画像を取得中にエラーが発生しました\n`)
@@ -58,7 +58,7 @@ type MediaInfo = {
 }
 
 // ツイートのなかにメディアがあればtrueを返す
-const hasMedia = (tweetData:any): boolean => {
+const hasMedia = (tweetData: any): boolean => {
   if (tweetData.promotedMetadata) return false; // プロモーションはリターン
 
   const hasTweet_Card = tweetData.tweet.card
@@ -149,16 +149,9 @@ const checkSQL = (mediaInfo: MediaInfo): boolean => {
   if (row["COUNT(*)"] !== 0) return false;
   //新規のデータであった場合resultをSQliteに格納
   sql = `INSERT INTO tweet (author_screenname,author_name, author_id, tweet_id, create_at, media_url, file_name) 
-   VALUES(
-    '${mediaInfo.userName}',
-    '@${mediaInfo.userScreenName}',
-     ${mediaInfo.userId},
-     ${mediaInfo.tweetId},
-    '${mediaInfo.createdAt}',
-    '${mediaInfo.mediaUrl}',
-    '${mediaInfo.fileName}'
-    );`
-  db.exec(sql);
+   VALUES(?,?,?,?,?,?,?);`
+  const params = [mediaInfo.userName, `@` + mediaInfo.userScreenName, mediaInfo.userId, mediaInfo.tweetId, mediaInfo.createdAt, mediaInfo.mediaUrl, mediaInfo.fileName]
+  db.exec(sql, params);
   return true;
 };
 
@@ -188,7 +181,7 @@ const downloadMediaByResponce = (responseBy: string, response: { data: { data: o
   // すでにダウンロード済みのものを除外
   const newMediaInfoArray = mediaInfoArray.filter((mediaInfo: MediaInfo) => checkSQL(mediaInfo))
   // 新規のメディアがなければ終了
-  if(newMediaInfoArray.length === 0) return Promise.resolve();
+  if (newMediaInfoArray.length === 0) return Promise.resolve();
   // メディアをダウンロード
   for (const mediaInfo of newMediaInfoArray) {
     if (mediaInfo.mediaType === "photo") {
