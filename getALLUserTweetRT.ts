@@ -1,6 +1,6 @@
 const config = JSON.parse(await Deno.readTextFile("./config.json"))
 import path from "node:path"
-import { TwitterOpenApi } from "npm:twitter-openapi-typescript@0.0.55" //うまい感じに型を読み込んで定義したい
+import { TwitterOpenApi, V20GetApiUtils } from "npm:twitter-openapi-typescript@0.0.45" //うまい感じに型を読み込んで定義したい
 const api = new TwitterOpenApi()
 const client = await api.getClientFromCookies({
   ct0: config.ct0,
@@ -11,56 +11,52 @@ const db = new Database(config.dbdir)
 
 const main = async () => {
 
-  // ブックマーク
-  {
-    // ブックマークデータを取得
-    const BookMarks = await client.getTweetApi().getBookmarks()
-    downloadMediaByResponce("bookmark", BookMarks, config["bookmarksDirname"], undefined)
-  }
-
-  // いいね
-  for (const user of config["LikesUserList"]) {
-    if (!user.userId) continue;
-    try {
-      // 一秒間のタイムアウト
-      setTimeout(() => { }, 1000)
-      const Likes = await client.getTweetApi().getLikes({ userId: user.userId })
-      downloadMediaByResponce("likes", Likes, user.dirname, `${user.name}(${user.username})`) // メディアツイート情報取得
-    } catch (e) {
-      if (user.erroIgnore === true) continue;
-      console.log(`${e}\n${user.username}さんのいいね欄から画像を取得中にエラーが発生しました\n`)
-    }
-  }
-
   // ツイート
-  for (const user of config["TweetUserList"]) {
-    if (!user.userId) continue;
-    try {
+  // for (const user of config["TweetUserList"]) {
+  const user = config["TweetUserList"][0]
+
+  // 再帰的に取得できるところまで取得する
+
+  const params: V20GetApiUtils.GetUserTweetsParams = {
+    userId: user.userId,
+    cursor: "",
+    count:100,
+    // CursorType:"",
+    // CursorTypeFromJSON:"",
+  }
+
+  try {
+    for (let i = 0; i < 100; i++) {
       // 一秒間のタイムアウト
-      setTimeout(() => { }, 1000)
+      setTimeout(() => { }, 1000*10)
 
       // ユーザーのツイートを取得
-      const Tweets = await client.getTweetApi().getUserTweets({ userId: user.userId })
-      downloadMediaByResponce("tweet", Tweets, "", `${user.name}(${user.username})`)
-    } catch (e) {
-      if (user.erroIgnore === true) continue;
-      console.log(`${e}\n${user.username}さんのツイートから画像を取得中にエラーが発生しました\n`)
-    }
-  }
+      const Tweets = await client.getTweetApi().getUserTweets(params).catch((e) => {
+        console.error(e)
+      })
+      if (!Tweets) break;
 
-  // メディア
-  for (const user of config["MediaUserList"]) {
-    if (!user.userId) continue;
-    try {
-      // 一秒間のタイムアウト
-      setTimeout(() => { }, 1000)
-      const Media = await client.getTweetApi().getUserMedia({ userId: user.userId })
-      downloadMediaByResponce("media", Media, user.dirname, `${user.name}(${user.username})`)
-    } catch (e) {
-      if (user.erroIgnore === true) continue;
-      console.log(`${e}\n${user.username}さんのメディア欄から画像を取得中にエラーが発生しました\n`)
+      try {
+        console.log(Tweets.data.cursor)
+        console.log(Tweets.data.data.at(-1).tweet.legacy?.fullText)
+      }catch(e){}
+
+        downloadMediaByResponce("tweet", Tweets, "", `${user.name}(${user.username})`)
+
+      // 次のページがない場合は終了
+      if (!Tweets.data.cursor) break;
+
+      // 次のページを取得するためのパラメータを設定
+      // params.cursor = Tweets.data.cursor.top?.value
+      params.cursor = Tweets.data.cursor.bottom?.value
+
     }
+
+  } catch (e) {
+    console.log(`${e}\n${user.username}さんのツイートから画像を取得中にエラーが発生しました\n`)
   }
+  // }
+
 
   // databaseを閉じる
   db.close()

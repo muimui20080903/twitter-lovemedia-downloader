@@ -2,6 +2,7 @@
 node_modules
 pic
 .vscode
+sample
 
 # ファイル
 config.json
