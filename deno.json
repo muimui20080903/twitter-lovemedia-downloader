@@ -1,6 +1,7 @@
 {
   "tasks": {
     "dev": "deno run --watch index.ts",
-    "start":"deno run --allow-read --allow-net --allow-env --allow-write --allow-ffi --unstable-ffi index.ts"
+    "start": "deno run --allow-read --allow-net --allow-env --allow-write --allow-ffi --unstable-ffi index.ts",
+    "test": "deno test --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi tests/"
   }
 }

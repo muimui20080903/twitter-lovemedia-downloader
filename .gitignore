@@ -7,6 +7,8 @@ sample
 # ファイル
 config.json
 twitterpic.db
+*.db.bkup
+twitterpic_old.db
 libsqlite3.so
 
 # 一時的なファイル
