@@ -1,4 +1,4 @@
-import { TwitterOpenApi } from "npm:twitter-openapi-typescript@0.0.55";
+import { TwitterOpenApi } from "npm:twitter-openapi-typescript@0.0.56";
 import { loadConfig } from "./config/loader.ts";
 import { initDatabase } from "./utils/database.ts";
 import { validateStoragePaths } from "./utils/storage.ts";
